@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/arsemada/heritage-short-film/schema/storyboard.schema.json",
+  "title": "Short film storyboard",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "style_block", "characters", "music", "shots", "end_card"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "language",
+        "tts_voice",
+        "tts_style_instruction",
+        "tts_model",
+        "target_duration_min_sec",
+        "target_duration_max_sec",
+        "aspect_ratios"
+      ],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "title_en": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 2, "maxLength": 16 },
+        "subtitle_language": { "type": "string", "minLength": 2, "maxLength": 16 },
+        "tts_voice": { "type": "string", "minLength": 1 },
+        "tts_style_instruction": { "type": "string", "minLength": 20 },
+        "tts_model": { "type": "string", "minLength": 1 },
+        "target_duration_min_sec": { "type": "number", "exclusiveMinimum": 0 },
+        "target_duration_max_sec": { "type": "number", "exclusiveMinimum": 0 },
+        "aspect_ratios": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["9:16", "16:9"] }
+        }
+      }
+    },
+    "style_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["look", "framing", "camera", "safety", "negative_prompt"],
+      "properties": {
+        "look": { "type": "string", "minLength": 10 },
+        "framing": { "type": "string", "minLength": 10 },
+        "camera": { "type": "string", "minLength": 10 },
+        "safety": { "type": "string", "minLength": 10 },
+        "negative_prompt": { "type": "string", "minLength": 10 }
+      }
+    },
+    "characters": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description", "fictionalized"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 20 },
+          "fictionalized": { "type": "boolean", "const": true }
+        }
+      }
+    },
+    "music": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "description", "status"],
+      "properties": {
+        "model": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 10 },
+        "status": { "type": "string", "enum": ["not_generated", "ready"] },
+        "path": { "type": ["string", "null"] }
+      }
+    },
+    "shots": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/shot" }
+    },
+    "end_card": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duration_sec", "text"],
+      "properties": {
+        "duration_sec": { "type": "number", "exclusiveMinimum": 0, "maximum": 15 },
+        "text": { "type": "string", "minLength": 20 },
+        "background": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "duration_sec",
+        "shot_size",
+        "reason",
+        "characters_present",
+        "narration_am",
+        "subtitle_en",
+        "image_prompt",
+        "motion_prompt",
+        "seed",
+        "fallback_ken_burns"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[0-9]{2}$" },
+        "duration_sec": { "type": "number", "exclusiveMinimum": 0, "maximum": 20 },
+        "shot_size": {
+          "type": "string",
+          "enum": ["wide", "medium", "medium_close", "close"]
+        },
+        "reason": { "type": "string", "minLength": 10 },
+        "characters_present": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "narration_am": { "type": "string", "minLength": 1 },
+        "subtitle_en": { "type": "string", "minLength": 1 },
+        "image_prompt": { "type": "string", "minLength": 40 },
+        "motion_prompt": { "type": "string", "minLength": 10 },
+        "seed": { "type": "integer", "minimum": 0, "maximum": 2147483647 },
+        "fallback_ken_burns": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["zoom", "pan"],
+          "properties": {
+            "zoom": { "type": "string", "enum": ["none", "in_slow", "out_slow"] },
+            "pan": {
+              "type": "string",
+              "enum": ["none", "left_slow", "right_slow", "up_slow"]
+            }
+          }
+        },
+        "proverb_am": { "type": "string", "minLength": 1 },
+        "proverb_en": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
