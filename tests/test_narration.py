@@ -101,6 +101,44 @@ def test_transient_failures_are_retried_and_permanent_failures_are_not(settings)
     assert bad.calls == 1
 
 
+def test_http_429_waits_out_the_rate_limit_and_keeps_finished_shots(settings):
+    delays: list[float] = []
+
+    class Limited:
+        def synthesize(self, **_kwargs) -> bytes:
+            raise TransientProviderError("Gemini HTTP 429.", retry_after_sec=25)
+
+    with pytest.raises(TransientProviderError, match="Shot 01 was not saved"):
+        run_narration(
+            settings,
+            scene="01",
+            provider=Limited(),
+            sleeper=delays.append,
+            max_attempts=3,
+        )
+    assert delays == [25.0, 25.0]
+
+
+def test_live_requests_keep_a_gap(settings):
+    delays: list[float] = []
+    now = {"t": 0.0}
+
+    def clock() -> float:
+        return now["t"]
+
+    def sleeper(delay: float) -> None:
+        delays.append(delay)
+        now["t"] += delay
+
+    run_narration(
+        settings,
+        provider=RecordingProvider(),
+        sleeper=sleeper,
+        clock=clock,
+    )
+    assert delays == [12.0] * 9
+
+
 def test_missing_api_key_does_not_call_the_provider(settings):
     with pytest.raises(CredentialsError, match="No request was sent"):
         GeminiTTSProvider(api_key=None)
@@ -149,6 +187,53 @@ def test_gemini_request_keeps_style_out_of_the_transcript():
     assert sent["model"] == "gemini-3.8-flash-tts"
     assert sent["generation_config"]["speech_config"] == [{"voice": "Kore"}]
     assert audio[:4] == b"RIFF"
+
+
+def test_rate_limit_without_a_status_code_is_transient():
+    class RateLimit(Exception):
+        def __str__(self) -> str:
+            return "<Response [429 Too Many Requests]>"
+
+    class StatusOnly(Exception):
+        def __init__(self) -> None:
+            super().__init__("request failed")
+            self.response = type("Response", (), {"status_code": 429, "headers": {"retry-after": "18"}})()
+
+    class Interactions:
+        def __init__(self, error: Exception) -> None:
+            self.error = error
+
+        def create(self, **_kwargs):
+            raise self.error
+
+    class Client:
+        def __init__(self, error: Exception) -> None:
+            self.interactions = Interactions(error)
+
+    provider = GeminiTTSProvider(api_key=None, client=Client(RateLimit()))
+    with pytest.raises(TransientProviderError, match="429") as caught:
+        provider.synthesize(text="ሀ", style="warm", voice="Kore", model="gemini-3.8-flash-tts")
+    assert caught.value.retry_after_sec is None
+
+    provider = GeminiTTSProvider(api_key=None, client=Client(StatusOnly()))
+    with pytest.raises(TransientProviderError, match="429") as caught:
+        provider.synthesize(text="ሀ", style="warm", voice="Kore", model="gemini-3.8-flash-tts")
+    assert caught.value.retry_after_sec == 18.0
+
+
+def test_gemini_client_disables_the_sdk_retry_sleep(monkeypatch):
+    captured: dict = {}
+
+    class FakeClient:
+        def __init__(self, **kwargs) -> None:
+            captured.update(kwargs)
+
+    import google.genai as genai
+
+    monkeypatch.setattr(genai, "Client", FakeClient)
+    GeminiTTSProvider(api_key="present")._build_client()
+    assert captured["http_options"]["retry_options"] == {"attempts": 1}
+    assert captured["api_key"] == "present"
 
 
 def test_duration_warning_bounds():

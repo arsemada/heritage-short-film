@@ -22,7 +22,9 @@ from pipeline.narration import (
 from pipeline.radio_cut import RadioCutResult, narration_wav_path, render_radio_cut
 from pipeline.validator import load_and_validate, planned_runtime_sec
 
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 6
+REQUEST_GAP_SEC = 12.0
+RATE_LIMIT_WAITS = (15.0, 20.0, 30.0, 45.0, 60.0)
 
 
 @dataclass(frozen=True)
@@ -54,6 +56,7 @@ def run_narration(
     sleeper=time.sleep,
     max_attempts: int = MAX_ATTEMPTS,
     run_id: str | None = None,
+    clock=time.monotonic,
 ) -> NarrationReport:
     """Generate missing narration WAVs. A cache hit does not call the provider."""
     storyboard = validate_project(settings)
@@ -69,6 +72,7 @@ def run_narration(
         raise
     cache = AssetCache(settings.cache_manifest_path, settings.root)
     results: list[ShotResult] = []
+    last_request_at: float | None = None
 
     for shot in selected:
         payload = narration_inputs(storyboard, shot)
@@ -78,6 +82,10 @@ def run_narration(
         started = time.perf_counter()
         if cached_path is not None:
             duration = wav_duration_seconds(cached_path)
+            print(
+                f"shot {shot['id']}  cached  {cached_path}  ({duration:.2f}s)",
+                flush=True,
+            )
             _log(
                 settings,
                 run_id=current_run,
@@ -96,6 +104,15 @@ def run_narration(
             )
             continue
 
+        if last_request_at is not None:
+            gap = REQUEST_GAP_SEC - (clock() - last_request_at)
+            if gap > 0:
+                print(
+                    f"shot {shot['id']}  waiting {gap:.0f}s before the next Gemini request.",
+                    flush=True,
+                )
+                sleeper(gap)
+        print(f"shot {shot['id']}  requesting...", flush=True)
         try:
             audio, attempts = _synthesize_with_retries(
                 provider=active_provider,
@@ -103,6 +120,7 @@ def run_narration(
                 style=payload["style"],
                 voice=payload["voice"],
                 model=payload["model"],
+                shot_id=shot["id"],
                 sleeper=sleeper,
                 max_attempts=max_attempts,
             )
@@ -154,6 +172,11 @@ def run_narration(
             duration=duration,
             voice=payload["voice"],
         )
+        print(
+            f"shot {shot['id']}  generated  {destination}  ({duration:.2f}s)",
+            flush=True,
+        )
+        last_request_at = clock()
         results.append(ShotResult(shot["id"], destination, duration, False, digest))
 
     total = sum(item.duration_sec for item in results)
@@ -209,6 +232,7 @@ def _synthesize_with_retries(
     style: str,
     voice: str,
     model: str,
+    shot_id: str,
     sleeper,
     max_attempts: int,
 ) -> tuple[bytes, int]:
@@ -222,12 +246,42 @@ def _synthesize_with_retries(
             last_error.attempts = attempt
             if attempt == max_attempts:
                 break
-            sleeper(min(8.0, 2 ** (attempt - 1)))
+            delay = _retry_delay(exc, attempt)
+            print(
+                f"shot {shot_id}  {exc} Waiting {delay:.0f}s, "
+                f"attempt {attempt + 1} of {max_attempts}.",
+                flush=True,
+            )
+            sleeper(delay)
         except PipelineError as exc:
             exc.attempts = attempt
             raise
     assert last_error is not None
+    if _is_rate_limit(last_error):
+        failure = TransientProviderError(
+            f"{last_error} Shot {shot_id} was not saved. "
+            "Wait a minute and run the same command. Finished shots are cached.",
+            retry_after_sec=last_error.retry_after_sec,
+        )
+        failure.attempts = last_error.attempts
+        raise failure
     raise last_error
+
+
+def _retry_delay(exc: TransientProviderError, attempt: int) -> float:
+    if _is_rate_limit(exc):
+        index = min(attempt - 1, len(RATE_LIMIT_WAITS) - 1)
+        delay = RATE_LIMIT_WAITS[index]
+        hinted = exc.retry_after_sec
+        if hinted is not None and hinted > delay:
+            return min(60.0, float(hinted))
+        return delay
+    return min(8.0, float(2 ** (attempt - 1)))
+
+
+def _is_rate_limit(exc: TransientProviderError) -> bool:
+    text = str(exc).lower()
+    return "429" in text or "too many requests" in text
 
 
 def _select_shots(storyboard: dict, scene: str | None) -> list[dict]:

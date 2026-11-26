@@ -44,6 +44,7 @@
       "required": ["look", "framing", "camera", "safety", "negative_prompt"],
       "properties": {
         "look": { "type": "string", "minLength": 10 },
+        "visual_style": { "type": "string", "minLength": 10 },
         "framing": { "type": "string", "minLength": 10 },
         "camera": { "type": "string", "minLength": 10 },
         "safety": { "type": "string", "minLength": 10 },
@@ -71,6 +72,10 @@
       "properties": {
         "model": { "type": "string", "minLength": 1 },
         "description": { "type": "string", "minLength": 10 },
+        "caption": { "type": "string", "minLength": 10, "maxLength": 512 },
+        "tempo_bpm": { "type": "integer", "minimum": 30, "maximum": 300 },
+        "key": { "type": "string", "minLength": 1 },
+        "seed": { "type": "integer", "minimum": 0, "maximum": 2147483647 },
         "status": { "type": "string", "enum": ["not_generated", "ready"] },
         "path": { "type": ["string", "null"] }
       }
@@ -114,7 +119,7 @@
         "duration_sec": { "type": "number", "exclusiveMinimum": 0, "maximum": 20 },
         "shot_size": {
           "type": "string",
-          "enum": ["wide", "medium", "medium_close", "close"]
+          "enum": ["wide", "medium", "medium_close", "medium_close_up", "close", "close_up", "insert"]
         },
         "reason": { "type": "string", "minLength": 10 },
         "characters_present": {

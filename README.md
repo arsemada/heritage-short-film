@@ -1,14 +1,12 @@
 # Heritage Short Film
 
-An Amharic short film about a childhood memory, and the Python pipeline that rebuilds it from `storyboard.json`.
+An Amharic short film about a childhood memory, rebuilt from `storyboard.json`.
 
 The narration is approved and lives in `STORY.md`. The pipeline does not rewrite it. Characters are fictionalized. See `ETHICS.md`.
 
-`pipeline/` is a generic engine. Another film can replace `storyboard.json` and use the same commands. This repository ships one storyboard, set in an everyday urban Ethiopian neighbourhood.
+`pipeline/` is a generic engine. Another film can replace `storyboard.json` and use the same commands. This repository ships one storyboard, set in an everyday urban Ethiopian neighbourhood drink house.
 
-This repository currently implements validation, caching, structured logs, and the narration stage. No provider has been called yet. Image, video, and music stages are not in the code yet.
-
-## What you can run
+## Setup
 
 From the repository root, with Python 3.11:
 
@@ -19,33 +17,48 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Open `.env` and set `GEMINI_API_KEY`. Leave the Cloudflare values empty until the image stage exists.
+Open `.env` and set `GEMINI_API_KEY` before narration. Set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` before keyframes. Use `python`, not `py`.
+
+FFmpeg 9.1 is required for shots and assembly. If a terminal was opened before FFmpeg was installed, open a new one. The pipeline also checks the WinGet Links shim.
+
+## Build the films
+
+When the narration WAVs, keyframes, and `outputs/music/score.wav` are already on disk:
 
 ```powershell
 python -m pipeline validate
+python -m pipeline run
+```
+
+`python -m pipeline run` conforms the ten shots and writes both films. It does not call Gemini or Cloudflare.
+
+```powershell
 python -m pipeline run --stage narration
 python -m pipeline run --stage narration --scene 01
+python -m pipeline run --stage keyframes
+python -m pipeline run --stage shots
+python -m pipeline run --stage assemble
 python -m pipeline radio-cut
 ```
 
-Use `python`, not `py`. On this machine the `py` launcher points at a Python install that is not there.
+`--scene 01` regenerates only shot 01, and only when that shot's SHA-256 fingerprint misses. Unchanged shots stay cached. The fingerprint for speech includes the Amharic line, the style instruction, the voice, the model, and the seed. The fingerprint for a shot video includes the source image or clip, the WAV duration, the motion fields, and the seed.
 
-`validate` is offline. It checks `storyboard.json` against `schema/storyboard.schema.json` and against structural rules: unique shot ids, known characters, and a planned runtime inside the storyboard's own duration bounds. The pipeline does not read `STORY.md`. The shipped film's exact Amharic is checked by `pytest`, which compares `storyboard.json` with `STORY.md`.
+`run --stage shots` uses `outputs/shots/wan/shot_XX.mp4` or `kaggle_outputs/shots/shot_XX.mp4` when that file is present, and loops or slow-trims it to the WAV. Otherwise it writes FFmpeg Ken Burns motion to `outputs/shots/shot_XX.mp4`. A cache hit does not rewrite the MP4. The source clip in `wan/` is never overwritten.
 
-`run --stage narration` calls the TTS provider named by `TTS_PROVIDER` (default `gemini`, model `gemini-3.8-flash-tts`). This film's storyboard sets the prebuilt voice `Kore`. The command writes `outputs/narration/shot_01.wav` through `shot_10.wav`. A second run skips shots whose text, voice, style, model, and seed have not changed. `--scene 01` regenerates only that shot. If the measured speech is outside the storyboard's target duration, the command warns you and leaves the narration text unchanged.
-
-`radio-cut` needs those WAV files and FFmpeg on `PATH`. It builds `outputs/radio_cut.mp4`: a black 9:16 frame with the narration, and prints the spoken duration. FFmpeg is not installed yet. Install it, then open a new terminal so `PATH` refreshes, and run the command again.
+`run --stage assemble` writes `outputs/subtitles/film.srt`, burns the English captions, ducks `outputs/music/score.wav` under the voice, normalizes to -14 LUFS, adds the 3-second AI disclosure card, and writes `outputs/final_9x16.mp4` and `outputs/final_16x9.mp4`.
 
 ## Layout
 
 | Path | Role |
 | --- | --- |
-| `storyboard.json` | Source of truth for shots, narration, prompts, and seeds |
+| `storyboard.json` | Source of truth for shots, narration, prompts, seeds, and the score brief |
 | `schema/storyboard.schema.json` | JSON Schema, Draft 2020-12 |
-| `pipeline/` | Generic command line, validation, cache, logs, narration, and radio cut. It does not contain this film's story. |
+| `pipeline/` | Validation, cache, logs, narration, keyframes, shots, music, and assembly. It does not contain this film's story. |
+| `notebooks/` | Optional Kaggle GPU scripts for Wan 2.2 and ACE-Step. They are not part of `python -m pipeline run`. |
 | `outputs/` | Generated media and the cache manifest. Gitignored |
 | `logs/runs.jsonl` | One JSON record per stage event. Secrets are redacted. Not gitignored |
-| `tests/` | Offline tests with a fake TTS provider |
+| `docs/` | Architecture, experiments, failures, costs, and the report |
+| `tests/` | Offline tests with fake providers |
 
 ## Tests
 
@@ -55,8 +68,12 @@ python -m pytest
 
 The tests do not call Gemini, Cloudflare, or FFmpeg.
 
-## Limits
+## What is on disk for this film
 
-- Narration code is ready. It has not been run against the API, so there is no speech to review yet.
-- Wan 2.2 and ACE-Step are not wired in. The film's picture and music come in later slices.
-- Planned shot timing adds up to 82 seconds including a 5-second end card. That is a plan, not a measurement of the voice.
+- Narration: ten WAVs, 78.50 seconds of speech, voice Kore.
+- Keyframes: ten JPEGs from Cloudflare FLUX.2 Klein 4B, plus `outputs/references/young_brother_ref.png`.
+- Shots: ten 1080×1080 Ken Burns masters matched to those WAVs.
+- Score: `outputs/music/score.wav`, converted from `score.mp3`. Storyboard tempo is 90 BPM.
+- Films: `outputs/final_9x16.mp4` and `outputs/final_16x9.mp4`.
+
+Planned storyboard time is 80 seconds including the 3-second end card. Assembly follows the measured speech, so the picture is 78.50 seconds plus the card.

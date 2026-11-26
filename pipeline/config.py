@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 
 DEFAULT_TTS_PROVIDER = "gemini"
 DEFAULT_TTS_MODEL = "gemini-3.8-flash-tts"
+DEFAULT_IMAGE_MODEL = "@cf/black-forest-labs/flux-1-schnell"
+DEFAULT_IMAGE_STEPS = 4
 
 
 @dataclass(frozen=True)
@@ -31,6 +33,8 @@ class Settings:
     cloudflare_api_token: str | None
     tts_provider: str
     tts_model: str
+    image_model: str
+    image_steps: int
 
     @property
     def narration_dir(self) -> Path:
@@ -74,7 +78,19 @@ def load_settings(root: Path | None = None) -> Settings:
         cloudflare_api_token=_blank_to_none(os.getenv("CLOUDFLARE_API_TOKEN")),
         tts_provider=(os.getenv("TTS_PROVIDER") or DEFAULT_TTS_PROVIDER).strip(),
         tts_model=(os.getenv("TTS_MODEL") or DEFAULT_TTS_MODEL).strip(),
+        image_model=(os.getenv("IMAGE_MODEL") or DEFAULT_IMAGE_MODEL).strip(),
+        image_steps=_image_steps(os.getenv("IMAGE_STEPS")),
     )
+
+
+def _image_steps(value: str | None) -> int:
+    if value is None or not value.strip():
+        return DEFAULT_IMAGE_STEPS
+    try:
+        steps = int(value.strip())
+    except ValueError:
+        return DEFAULT_IMAGE_STEPS
+    return min(8, max(1, steps))
 
 
 def _blank_to_none(value: str | None) -> str | None:

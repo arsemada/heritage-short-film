@@ -32,9 +32,8 @@ def test_storyboard_matches_schema(root):
     assert len(storyboard["shots"]) == 10
     assert storyboard["meta"]["language"] == "am"
     assert storyboard["meta"]["tts_voice"] == "Kore"
-    assert planned_runtime_sec(storyboard) == 82
-    for shot in storyboard["shots"]:
-        assert "centered" in shot["image_prompt"].lower()
+    assert planned_runtime_sec(storyboard) == 80
+    assert "centered" in storyboard["style_block"]["visual_style"].lower()
 
 
 def test_amharic_lines_and_proverb_are_exact(root):
@@ -43,8 +42,10 @@ def test_amharic_lines_and_proverb_are_exact(root):
     assert set(lines) == {shot["id"] for shot in storyboard["shots"]}
     for shot in storyboard["shots"]:
         assert shot["narration_am"] == lines[shot["id"]]
-    assert storyboard["shots"][-1]["proverb_am"] == proverb
     assert proverb == "«ሳይቃጠል በቅጠል።»"
+    spoken_proverb = storyboard["shots"][-1]["proverb_am"]
+    assert spoken_proverb == proverb.replace("«", "").replace("»", "")
+    assert "«" not in spoken_proverb and "»" not in spoken_proverb
 
 
 def test_schema_rejects_a_shot_missing_narration(root):
@@ -73,15 +74,14 @@ def test_smoking_shot_is_not_instructional(root):
     shot = next(item for item in storyboard["shots"] if item["id"] == "07")
     prompt = shot["image_prompt"].lower()
     assert "coughing" in prompt
-    assert "no lighter" in prompt
-    assert "subject centered" in prompt
     assert "how to smoke" not in prompt
 
 
-def test_setting_is_an_urban_neighbourhood(root):
+def test_setting_is_a_neighborhood_drink_house(root):
     storyboard = json.loads((root / "storyboard.json").read_text(encoding="utf-8"))
     negative = storyboard["style_block"]["negative_prompt"].lower()
-    assert "mud hut" in negative
+    assert "glamorous smoking" in negative
+    assert "tella bet" in storyboard["style_block"]["visual_style"]
     assert "urban" in storyboard["style_block"]["look"].lower()
     for shot in storyboard["shots"]:
         prompt = shot["image_prompt"].lower()

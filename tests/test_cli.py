@@ -17,4 +17,4 @@ def test_validate_command(root):
     )
     assert completed.returncode == 0, completed.stderr
     assert "Storyboard is valid: 10 shots" in completed.stdout
-    assert "82.0 seconds" in completed.stdout
+    assert "80.0 seconds" in completed.stdout

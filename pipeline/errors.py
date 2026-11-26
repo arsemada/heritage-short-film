@@ -14,7 +14,11 @@ class CredentialsError(PipelineError):
 
 
 class TransientProviderError(PipelineError):
-    """A provider failed in a way that a short retry might fix."""
+    """A provider failed in a way that waiting and retrying might fix."""
+
+    def __init__(self, message: str, *, retry_after_sec: float | None = None) -> None:
+        super().__init__(message)
+        self.retry_after_sec = retry_after_sec
 
 
 class PermanentProviderError(PipelineError):

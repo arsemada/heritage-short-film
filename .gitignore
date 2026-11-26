@@ -9,6 +9,8 @@ __pycache__/
 
 # Generated media and caches. logs/runs.jsonl is intentionally not ignored.
 outputs/
+kaggle_outputs/
+ACE-Step-1.5/
 *.wav
 *.mp3
 *.m4a

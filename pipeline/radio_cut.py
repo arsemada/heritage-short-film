@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
 from pipeline.errors import MissingFFmpegError, PipelineError
+from pipeline.ffmpeg_lookup import find_ffmpeg
 from pipeline.narration import duration_warning, wav_duration_seconds
 
 RADIO_WIDTH = 1080
@@ -104,7 +104,7 @@ def render_radio_cut(
         )
 
     total = sum(wav_duration_seconds(path) for path in wavs)
-    binary = shutil.which("ffmpeg") if ffmpeg is None else ffmpeg
+    binary = find_ffmpeg() if ffmpeg is None else ffmpeg
     if not binary:
         raise MissingFFmpegError(total)
 

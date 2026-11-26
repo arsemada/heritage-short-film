@@ -5,50 +5,50 @@
     "language": "am",
     "subtitle_language": "en",
     "tts_voice": "Kore",
-    "tts_style_instruction": "Warm, unhurried Ethiopian storytelling. A calm adult remembering childhood with tenderness and seriousness. Clear Amharic, steady pace, no laughter, and no promotional tone.",
+    "tts_style_instruction": "One consistent Addis Ababa Amharic radio narrator. Warm, unhurried, cozy morning storytelling. Keep the same pitch, pace, and voice on every clip. Pause naturally at the commas and full stops already written in the line. Pronounce each word clearly. No laughter, no promotional tone, and no change of speaker.",
     "tts_model": "gemini-3.8-flash-tts",
     "target_duration_min_sec": 60,
     "target_duration_max_sec": 90,
     "aspect_ratios": ["9:16", "16:9"]
   },
   "style_block": {
-    "look": "Cinematic and realistic. Warm golden-hour light outdoors and warm indoor electric light. An everyday urban Ethiopian residential neighbourhood: painted plaster and concrete compound walls, a metal compound gate, a paved or cobblestone lane, and a cozy living room with ordinary furniture.",
+    "look": "Candid documentary photography in an everyday urban Ethiopian neighborhood traditional drink house (tella bet), from warm afternoon into twilight.",
+    "visual_style": "Candid, realistic 35mm documentary-style photography in an everyday Ethiopian neighborhood local drink house (tella bet), warm natural afternoon to twilight lighting, authentic textures: woven striped plastic wall tapestry, worn plastered walls, low wooden benches and red/purple plastic stools, tall glass tumblers of cloudy amber-brown traditional Ethiopian drink, centered framing with headroom for both 9:16 and 16:9, natural skin tones, shallow depth of field.",
     "framing": "The person who matters is centered, with room above and below, so the still can be cropped to 9:16 or 16:9.",
     "camera": "Subtle documentary movement. No fast cuts and no dramatic crane moves.",
     "safety": "Smoking is awkward and unpleasant. The child coughs. The image is never instructional or glamorous.",
-    "negative_prompt": "rural village, mud hut, thatched roof, mud-plaster hut, savanna, wildlife, tribal costume, caricature, exaggerated poverty, glamorous smoking, cigarette advertisement, how-to smoking, lighter, flame close-up, readable text, logo, watermark, real person likeness"
+    "negative_prompt": "cartoon, anime, glossy 3D CGI, luxury modern bar, neon signs, inconsistent faces, changing clothes, extra fingers, distorted hands, text, watermarks, glamorous smoking"
   },
   "characters": {
-    "brother": {
+    "young_brother": {
       "name": "Younger brother",
-      "description": "A primary-school-age Ethiopian boy with short black hair, a faded mustard t-shirt, cuffed jeans, and worn sneakers. Everyday urban casual clothes. Fictionalized. No exact age is stated.",
+      "description": "A 10-to-12-year-old Ethiopian boy with a warm medium-brown complexion, short neatly cropped curly black hair, expressive dark eyes, wearing the exact same outfit in every scene: a navy-blue v-neck knit sweater over a light-blue collared school shirt, dark trousers, and worn sneakers.",
       "fictionalized": true
     },
     "mother": {
       "name": "Mother",
-      "description": "An Ethiopian woman in her late 30s, in a simple casual dress and a light cardigan, serving traditional drinks in ordinary glasses and cups at home. The drink has no specific name. Fictionalized.",
+      "description": "A warm, dignified Ethiopian woman in her late 30s with hair tied back in a patterned headscarf, wearing a modest coral-red zip-up track jacket over a dark floral-patterned long skirt and a small traditional necklace.",
       "fictionalized": true
     },
-    "customer": {
-      "name": "Regular customer",
-      "description": "An Ethiopian man in his 40s in a casual jacket and a collared shirt, seated outside with his drink and a cigarette. The habit looks ordinary and unappealing. Fictionalized.",
+    "smoker_customer": {
+      "name": "Smoking customer",
+      "description": "An Ethiopian man in his late 30s with short curly black hair and light beard, wearing a faded blue long-sleeve sweatshirt and blue jeans, seated casually.",
       "fictionalized": true
     },
-    "neighbour_wife": {
-      "name": "Neighbour",
-      "description": "A kind Ethiopian woman in her 60s in a neat everyday coat, with a light gabi over her normal clothes. One half of a married couple. Fictionalized.",
-      "fictionalized": true
-    },
-    "neighbour_husband": {
-      "name": "Neighbour",
-      "description": "A kind Ethiopian man in his 60s in a neat sweater and trousers, husband of the neighbour. Fictionalized.",
+    "elderly_neighbors": {
+      "name": "Elderly neighbours",
+      "description": "A kind elderly Ethiopian married couple in their 60s; the husband with graying hair wearing an olive-brown wool overcoat over a collared shirt and holding a wooden walking stick, and the wife wearing a modest dark patterned dress with a light shawl.",
       "fictionalized": true
     }
   },
   "music": {
     "model": "ACE-Step 1.5",
     "description": "Quiet original instrumental, warm and restrained, with no vocals, sitting under the Amharic narration.",
-    "status": "not_generated",
+    "caption": "Quiet original instrumental, warm and restrained, with no vocals, sitting under spoken narration.",
+    "tempo_bpm": 90,
+    "key": "D major",
+    "seed": 7200,
+    "status": "ready",
     "path": null
   },
   "shots": [
@@ -60,7 +60,7 @@
       "characters_present": [],
       "narration_am": "ከታናሽ ወንድሜ ጋር የተያያዘ፣ ፈጽሞ ልረሳው የማልችለው አንድ የልጅነት ትዝታ አለኝ።",
       "subtitle_en": "There is one childhood memory, tied to my younger brother, that I will never be able to forget.",
-      "image_prompt": "Photorealistic cinematic wide shot at golden hour. A metal compound gate in a painted plaster and concrete wall is centered on a cobblestone residential lane in an everyday urban Ethiopian neighbourhood. A small balcony and ordinary windows sit above the wall. No people. Warm low sunlight, realistic colors. The gate stays centered, with clear space above and below so the frame can be cropped to 9:16 or 16:9. Natural documentary realism. No text, no logo, no watermark.",
+      "image_prompt": "Centered wide view outside and looking into a welcoming neighborhood Ethiopian traditional drink house (tella bet) in warm late afternoon; weathered plastered exterior wall, open wooden doorway, low wooden benches outside, warm golden light.",
       "motion_prompt": "The camera holds almost still. A curtain shifts once in an upstairs window. No people enter.",
       "seed": 1001,
       "fallback_ken_burns": { "zoom": "in_slow", "pan": "none" }
@@ -70,11 +70,11 @@
       "duration_sec": 9,
       "shot_size": "medium",
       "reason": "Show the mother selling traditional drinks at home, and people stopping to talk.",
-      "characters_present": ["mother", "brother"],
+      "characters_present": ["mother"],
       "narration_am": "በልጅነታችን እናታችን ከቤታችን ሆና ባህላዊ መጠጦችን ትሸጥ ነበር። ሰዎችም መጠጥ ለመግዛትና ለመወያየት በተደጋጋሚ ይመጡ ነበር።",
       "subtitle_en": "When we were children, our mother sold traditional drinks from our home. People came again and again to buy a drink and to talk.",
-      "image_prompt": "Photorealistic cinematic medium shot, subject centered. An Ethiopian woman in her late 30s, wearing a simple casual dress and a light cardigan, stands in the center of a cozy urban living room and hands an unmarked glass to a visitor. Traditional drinks sit in ordinary glasses and cups on a low table. No drink name, label, or brand is visible. A primary-school-age Ethiopian boy with short black hair, a faded mustard t-shirt, cuffed jeans, and worn sneakers stands a little behind her, also inside the central third of the frame. Two adults talk nearby. Warm electric indoor light, normal sofa and curtains, painted walls. Fictional people, not portraits of real persons. Room above and below for a 9:16 or 16:9 crop. No text, no logo, no watermark.",
-      "motion_prompt": "The mother passes a glass. The visitors shift their weight and talk. The boy watches quietly. Movement stays small.",
+      "image_prompt": "Centered medium view inside the cozy neighborhood drink house with striped woven wall covering in the background; the mother, in a coral-red zip jacket, floral skirt, and headscarf, warmly pours a cloudy amber-brown traditional drink from a metal kettle into tall clear glasses on a rustic table for seated neighbors.",
+      "motion_prompt": "The mother pours from a metal kettle into tall glasses. Seated neighbors shift and talk. Movement stays small.",
       "seed": 1002,
       "fallback_ken_burns": { "zoom": "none", "pan": "right_slow" }
     },
@@ -83,36 +83,36 @@
       "duration_sec": 6,
       "shot_size": "medium",
       "reason": "Introduce the regular customer who smoked while he drank, without making the habit look appealing.",
-      "characters_present": ["customer", "brother"],
+      "characters_present": ["smoker_customer"],
       "narration_am": "ከደንበኞቻችን መካከል ሁልጊዜ ከመጠጥ ጋር ሲጋራ የሚያጨስ አንድ ሰው ነበር።",
       "subtitle_en": "Among our customers was a man who always smoked a cigarette with his drink.",
-      "image_prompt": "Photorealistic cinematic medium shot, subject centered. An Ethiopian man in his 40s, in a casual jacket and a collared shirt, sits on a plain chair just outside a metal compound gate. An unmarked glass is beside him. He holds a cigarette and a thin, unattractive wisp of smoke rises. He is not posed, not stylish, and not glamorous. The smoking looks like a tired habit. In the doorway behind him, slightly soft, a primary-school-age Ethiopian boy in a faded mustard t-shirt, cuffed jeans, and worn sneakers watches. Late-afternoon light on a paved residential lane, painted concrete wall. Fictional people. Centered framing with room above and below for 9:16 and 16:9 crops. No text, no logo, no flame close-up, no watermark.",
-      "motion_prompt": "Smoke drifts and thins. The man does not perform for the camera. The boy remains still in the doorway.",
+      "image_prompt": "Centered medium view inside and by the doorway of the drink house in late afternoon; the smoker, in a blue sweatshirt and blue jeans, sits on a plastic stool beside a small table with a glass mug of amber drink and a small metal ashtray, holding a lit cigarette with thin wisps of smoke rising.",
+      "motion_prompt": "Smoke drifts and thins. The man does not perform for the camera. He stays seated.",
       "seed": 1003,
       "fallback_ken_burns": { "zoom": "in_slow", "pan": "none" }
     },
     {
       "id": "04",
       "duration_sec": 8,
-      "shot_size": "medium_close",
+      "shot_size": "close_up",
       "reason": "Show the brother's curiosity about the customer's posture, before he has touched anything.",
-      "characters_present": ["brother", "customer"],
+      "characters_present": ["young_brother"],
       "narration_am": "ታናሽ ወንድሜም የሰውየውን አቋቋም እና ማጨስ በጉጉት እያየ፣ ጉዳቱን ሳይረዳ መሞከር ፈለገ።",
       "subtitle_en": "My younger brother watched the man's posture and his smoking with curiosity and, without understanding the harm, wanted to try it.",
-      "image_prompt": "Photorealistic cinematic medium-close shot, subject centered. A primary-school-age Ethiopian boy is centered, short black hair, faded mustard t-shirt, cuffed jeans, worn sneakers. His face is curious and uncertain, not delighted. He looks toward an out-of-focus Ethiopian man in a casual jacket and collared shirt, seated farther back with a cigarette and an unmarked glass. The cigarette is small in the frame and unappealing. Warm late light on an urban residential lane beside a painted plaster wall. Fictional characters, not real portraits. Centered, with space above and below for a 9:16 or 16:9 crop. No text, no logo, no watermark. The boy is not holding a cigarette.",
-      "motion_prompt": "The boy tilts his head slightly, studying the man. His hands stay at his sides. No imitation yet.",
+      "image_prompt": "Tight close-up portrait centered on young_brother (10-to-12-year-old Ethiopian boy with short curly black hair, wearing a navy-blue v-neck sweater over a light-blue collared shirt), leaning slightly forward by a wooden doorframe with wide, fascinated eyes and a thoughtful, curious expression on his face as he intently watches someone off-camera in warm late-afternoon light.",
+      "motion_prompt": "The boy leans slightly toward the doorframe, eyes wide, watching someone out of frame. His hands stay down.",
       "seed": 1004,
       "fallback_ken_burns": { "zoom": "in_slow", "pan": "none" }
     },
     {
       "id": "05",
       "duration_sec": 7,
-      "shot_size": "close",
+      "shot_size": "medium_close_up",
       "reason": "The boy finds a discarded cigarette on the ground at sunset.",
-      "characters_present": ["brother"],
+      "characters_present": ["young_brother"],
       "narration_am": "አንድ ምሽት ፀሐይ እየጠለቀች ሳለ፣ ወንድሜ መሬት ላይ የተጣለች ትንሽ ሲጋራ አየ።",
       "subtitle_en": "One evening, as the sun was setting, my brother saw a small cigarette that had been thrown on the ground.",
-      "image_prompt": "Photorealistic cinematic close shot at sunset, subject centered. A small dirty discarded cigarette butt lies centered on cobblestone in an urban residential lane. It looks like rubbish, not a product. At the edge of the center, the worn sneakers and lowered hand of a primary-school-age Ethiopian boy in cuffed jeans. He has just noticed it. Golden sunset light, long soft shadows, painted compound wall behind him. The butt is not glamorous and there is no lighter and no flame. Fictional character. Space above and below for 9:16 and 16:9 crops. No text, no logo, no watermark.",
+      "image_prompt": "Medium close-up shot in dim evening twilight dusk outside a plastered compound wall; young_brother (10-to-12-year-old Ethiopian boy in navy-blue v-neck sweater over light-blue collared shirt and dark trousers) is crouching/bending down on rough stone and dusty ground in cool blue-indigo dusk shadow, reaching his hand down toward a small discarded cigarette stub lying on the ground beside his worn sneakers. No cups, glasses, or drinks.",
       "motion_prompt": "The camera is low and almost still. The boy's hand hesitates and does not pick the cigarette up yet.",
       "seed": 1005,
       "fallback_ken_burns": { "zoom": "in_slow", "pan": "none" }
@@ -122,11 +122,11 @@
       "duration_sec": 7,
       "shot_size": "medium",
       "reason": "He checks that nobody is watching and hurries toward the compound wall.",
-      "characters_present": ["brother"],
+      "characters_present": ["young_brother"],
       "narration_am": "ማንም እንዳላየው አረጋግጦ፣ ጨለማው የሚደብቀው መስሎት ወደ አጥሩ ፈጥኖ ሄደ።",
       "subtitle_en": "After making sure that nobody saw him, and thinking the darkness would hide him, he hurried to the fence.",
-      "image_prompt": "Photorealistic cinematic medium shot at dusk, subject centered. A primary-school-age Ethiopian boy, faded mustard t-shirt, cuffed jeans, and worn sneakers, is centered as he hurries toward a painted plaster compound wall and a closed metal gate. He glances back over his shoulder, worried about being seen. The cobblestone lane is dim and warm, sunset almost gone. He is not smoking. Nothing is in his mouth. Fictional character, centered with room above and below for 9:16 and 16:9 crops. No text, no logo, no watermark.",
-      "motion_prompt": "He takes two quick steps toward the compound wall and looks back once. The camera follows only slightly.",
+      "image_prompt": "Dynamic medium action shot in dim evening twilight along an exterior plastered neighborhood wall; young_brother (10-to-12-year-old Ethiopian boy in navy-blue v-neck sweater over light-blue collared shirt and dark trousers) is caught mid-stride hurrying quickly toward the corner of the wall while turning his head back sharply over his shoulder with wide, cautious eyes to check that nobody is watching him.",
+      "motion_prompt": "He is mid-stride and snaps his head back over his shoulder. The camera follows only slightly.",
       "seed": 1006,
       "fallback_ken_burns": { "zoom": "none", "pan": "left_slow" }
     },
@@ -135,12 +135,12 @@
       "duration_sec": 8,
       "shot_size": "medium",
       "reason": "He tries to copy the customer's stance and immediately starts coughing. The attempt fails.",
-      "characters_present": ["brother"],
+      "characters_present": ["young_brother"],
       "narration_am": "አንድ እግሩን ግድግዳው ጋር ለጥፎ ሰውየውን ለመምሰል ሲሞክር ግን፣ ወዲያው ማሳል ጀመረ።",
       "subtitle_en": "He pressed one foot against the wall to imitate the man, but he immediately started coughing.",
-      "image_prompt": "Photorealistic cinematic medium shot, subject centered. A primary-school-age Ethiopian boy in a faded mustard t-shirt, cuffed jeans, and worn sneakers stands awkwardly with one foot pressed against a painted plaster compound wall. He is coughing hard, eyes watering, shoulders hunched, face turned slightly aside. He looks uncomfortable and embarrassed, not cool and not pleased. A broken unlit cigarette butt lies on the cobblestone near his sneaker, treated as litter. No lighter, no flame, no smoke trick, and no glamorous inhale. The picture must not teach the action. Dusk light on an urban residential lane, metal gate at the edge of frame. Fictional character. Centered with space above and below for a 9:16 or 16:9 crop. No text, no logo, no watermark.",
-      "motion_prompt": "One awkward cough shakes his shoulders. His foot stays against the wall and his balance looks unsteady. He does not inhale smoothly and he does not smile.",
-      "seed": 1007,
+      "image_prompt": "By the exterior wall at dusk, young_brother (10-to-12-year-old Ethiopian boy in navy v-neck sweater over light-blue collared shirt, dark trousers, and worn sneakers) leans one foot back flat against the wall trying to imitate an adult smoker's stance, grimacing and coughing awkwardly with one hand covering his mouth.",
+      "motion_prompt": "One sneaker stays flat on the ground. The other sole rests on the wall. One cough shakes his shoulders. He does not inhale smoothly and he does not smile.",
+      "seed": 1008,
       "fallback_ken_burns": { "zoom": "in_slow", "pan": "none" }
     },
     {
@@ -148,10 +148,10 @@
       "duration_sec": 8,
       "shot_size": "medium",
       "reason": "The older married neighbours notice him and stop him.",
-      "characters_present": ["brother", "neighbour_wife", "neighbour_husband"],
+      "characters_present": ["elderly_neighbors", "young_brother"],
       "narration_am": "ልክ በዚያች ቅጽበት፣ በአቅራቢያው ያልፉ የነበሩ በእድሜ የገፉ የምናውቃቸው ጎረቤት ባልና ሚስት አዩትና አስቆሙት።",
       "subtitle_en": "At that very moment, an older married couple, neighbours the family knew, were passing nearby. They saw him and stopped him.",
-      "image_prompt": "Photorealistic cinematic medium shot at dusk, subject centered. An Ethiopian woman in her 60s, in a neat coat with a light gabi over her shoulders, and an Ethiopian man in his 60s, in a neat sweater, have stopped on a cobblestone residential lane. Their faces show concern, not anger. The woman holds a gentle open hand toward a primary-school-age boy in a faded mustard t-shirt, cuffed jeans, and worn sneakers, who is still coughing beside a painted plaster wall. No one is shouting. No cigarette is celebrated. Warm dim street light, metal compound gates along the lane. Fictional people, centered with room above and below for 9:16 and 16:9 crops. No text, no logo, no watermark.",
+      "image_prompt": "Centered medium two-shot on the quiet neighborhood path at dusk. An elderly Ethiopian husband in an olive-brown overcoat with a wooden walking stick, and his wife in a dark patterned dress and shawl, stop walking and look toward the boy by the wall with gentle concern.",
       "motion_prompt": "The couple stop walking. The woman extends a careful hand. The boy coughs once more and looks down.",
       "seed": 1008,
       "fallback_ken_burns": { "zoom": "none", "pan": "right_slow" }
@@ -161,11 +161,11 @@
       "duration_sec": 9,
       "shot_size": "medium",
       "reason": "They bring him home and tell his mother, who is saddened and explains the harm.",
-      "characters_present": ["mother", "brother", "neighbour_wife", "neighbour_husband"],
+      "characters_present": ["mother", "young_brother"],
       "narration_am": "ችላ ብለው ከማለፍ ይልቅ ወደ ቤት ይዘውት ገብተው ለእናታችን ነገሯት። እሷም በጣም አዝና፣ ሲጋራ ምን ያህል ጎጂ እንደሆነ አስረዳችው።",
       "subtitle_en": "Instead of ignoring it and walking past, they brought him into the house and told our mother. She was deeply saddened, and she explained how harmful cigarettes are.",
-      "image_prompt": "Photorealistic cinematic medium shot, subject centered, inside a cozy urban living room with a normal sofa, a wooden coffee table, and warm electric light. An Ethiopian woman in her late 30s, in a casual dress and light cardigan, kneels to meet a primary-school-age boy in a faded mustard t-shirt and cuffed jeans. Her face is sad and caring, not theatrical. Behind them, an older woman in a coat with a light gabi and an older man in a sweater stand quietly, having brought the boy home. The conversation is serious. Mouths are not shaped around readable words. No cigarette is shown as desirable. Fictional people, centered with space above and below for 9:16 and 16:9 crops. No text, no logo, no watermark.",
-      "motion_prompt": "The mother rests a hand on the boy's arm. The neighbours wait, still. The gesture is calm and serious.",
+      "image_prompt": "Medium interior shot inside a warm lamp-lit room with striped woven wall tapestry; mother (warm Ethiopian woman in her late 30s wearing a coral-red zip-up track jacket, dark floral long skirt, and patterned headscarf) sits with her hands resting empty in her lap, speaking seriously with quiet sadness and gentle firmness to young_brother (navy-blue v-neck sweater over light-blue collared shirt), who sits beside her with empty hands resting on his knees, looking down sheepishly. No cups, glasses, or drinks anywhere in the scene.",
+      "motion_prompt": "Both pairs of hands stay empty. The mother speaks. The boy looks down.",
       "seed": 1009,
       "fallback_ken_burns": { "zoom": "in_slow", "pan": "none" }
     },
@@ -174,19 +174,19 @@
       "duration_sec": 8,
       "shot_size": "wide",
       "reason": "Close on the outcome: he never tried again, and the community shares the duty to protect a child.",
-      "characters_present": ["mother", "brother"],
+      "characters_present": [],
       "narration_am": "ከዚያ ቀን ጀምሮ ዳግመኛ ሲጋራ አልነካም። ልጅን መጠበቅ የወላጅ ብቻ ሳይሆን የማህበረሰብ ኃላፊነት ነው።",
       "subtitle_en": "From that day on, he never touched a cigarette again. Protecting a child is not only a parent's responsibility. It is the responsibility of the community.\n\nBefore it burns, while it is still a leaf.",
-      "proverb_am": "«ሳይቃጠል በቅጠል።»",
+      "proverb_am": "ሳይቃጠል በቅጠል።",
       "proverb_en": "Before it burns, while it is still a leaf.",
-      "image_prompt": "Photorealistic cinematic wide shot at the last of golden hour, subject centered. On a cobblestone lane outside a metal compound gate, an Ethiopian woman in her late 30s, in a casual dress and light cardigan, walks slowly beside a primary-school-age boy in a faded mustard t-shirt, cuffed jeans, and worn sneakers. Both look quiet and safe. Farther down the residential street, an older couple in neat coats continue on their way, small in the frame. No cigarettes are visible. Warm, grateful, realistic light on painted concrete walls. Fictional people, centered with room above and below for 9:16 and 16:9 crops. No text painted in the image, no logo, no watermark.",
-      "motion_prompt": "Mother and child walk a few slow steps toward the gate. The neighbours recede. The camera barely moves.",
-      "seed": 1010,
+      "image_prompt": "Wide, serene twilight establishing shot centered on a close-knit urban Ethiopian residential neighborhood lane at dusk; modest neighboring homes with plastered walls and metal gates sit side by side under a deep blue-violet evening sky, warm golden light glowing peacefully from open doorways and windows, a couple of neighbors walking calmly in the distance, conveying warmth, safety, and community care.",
+      "motion_prompt": "Neighbors walk slowly in the distance. Doorway light stays warm. The camera barely moves.",
+      "seed": 1020,
       "fallback_ken_burns": { "zoom": "out_slow", "pan": "none" }
     }
   ],
   "end_card": {
-    "duration_sec": 5,
+    "duration_sec": 3,
     "background": "black",
     "text": "This film was made with artificial intelligence.\nNarration: Gemini text-to-speech, prebuilt voice Kore.\nPictures: Cloudflare Workers AI.\nThe characters are fictionalized. They are not portraits or voice clones of real people."
   }

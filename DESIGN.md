@@ -27,9 +27,9 @@ The humor is the awkwardness of a child copying an adult and immediately coughin
 
 ## Look and sound
 
-The picture is cinematic and realistic. Light is warm and late in the day outdoors, and warm electric light indoors. The place is an everyday urban Ethiopian residential neighbourhood: painted plaster and concrete walls, a metal compound gate, a paved or cobblestone lane, and a cozy living room with ordinary furniture. Clothing is everyday urban clothes. The camera barely moves, the way a patient documentary camera would.
+The picture is candid 35mm documentary photography. Light moves from a warm afternoon into twilight. The place is an everyday urban Ethiopian neighborhood traditional drink house (tella bet): woven wall covering, worn plaster, wooden benches, plastic stools, and tall glasses of an unnamed cloudy amber-brown drink. Clothing is locked per character. The camera barely moves.
 
-The pictures do not use a rural village, a mud hut, or a caricature of Ethiopian life. Those exclusions are stored in `style_block.negative_prompt` as well as in the look itself.
+The pictures are not a luxury bar, a cartoon, or a caricature. Those exclusions are stored in `style_block.negative_prompt`.
 
 The narration is one adult voice remembering, in Amharic, using the prebuilt Gemini voice `Kore`. The speaking style is warm and unhurried. That instruction is stored separately from the narration text so the approved words are not rewritten to direct the actor.
 
@@ -37,15 +37,14 @@ Music, when it is made, should be an original instrumental that stays under the 
 
 ## Characters
 
-These are fictionalized visual descriptions for image generation. They are not portraits of the real family. The brother's age is not stated as a number. The other ages below are appearance ranges for the pictures, not claimed facts about the real people.
+These are fictionalized visual descriptions for image generation. The younger brother is a fictionalized 10–12-year-old whose look is inspired by a private family reference. That photograph is not in the repository. The other ages below are appearance ranges for the pictures, not claimed facts about real people. The exact sentences live in `storyboard.json` and are copied unchanged into each keyframe prompt.
 
 | Id | Who | What the pictures show |
 | --- | --- | --- |
-| `brother` | The younger brother | A primary-school-age Ethiopian boy in everyday urban clothes: a faded mustard t-shirt, cuffed jeans, and worn sneakers. |
-| `mother` | The mother | An Ethiopian woman in her late 30s, in a casual dress and a light cardigan, serving traditional drinks in ordinary glasses and cups. The drink is never given a specific name. |
-| `customer` | A regular customer | An Ethiopian man in his 40s, in a casual jacket and a collared shirt, seated outside with his drink and a cigarette. The habit looks ordinary and unappealing. |
-| `neighbour_wife` | One of the neighbours | A kind woman in her 60s, in a neat everyday coat, with a light gabi over normal clothes. |
-| `neighbour_husband` | Her husband | A kind man in his 60s, in a neat sweater. They are a married couple the family already knew, walking the residential street at dusk. |
+| `young_brother` | The younger brother | A 10-to-12-year-old Ethiopian boy, short curly black hair, navy v-neck sweater over a light-blue collared shirt, dark trousers, worn sneakers. The same outfit in every shot. |
+| `mother` | The mother | An Ethiopian woman in her late 30s, patterned headscarf, coral-red zip jacket, dark floral skirt, small traditional necklace. |
+| `smoker_customer` | A regular customer | An Ethiopian man in his late 30s, short curly hair and a light beard, faded blue sweatshirt and jeans, seated with a drink and a cigarette. |
+| `elderly_neighbors` | The neighbouring couple | A husband in his 60s in an olive-brown overcoat with a wooden walking stick, and his wife in a dark patterned dress and light shawl. |
 
 No names are used. No dialogue is invented. The pictures show concern, a cough, and a conversation. They do not put words in anyone's mouth.
 
@@ -64,12 +63,25 @@ Neither test has been run. Fill the result lines after real viewers have watched
 
 ### User Test #1 — Radio Cut
 
-- **Status:** Not run.
-- **Audience:** At least 3 people from the intended audience (families, peers, or young adults).
-- **Material:** Amharic narration over a black screen, produced with `python -m pipeline radio-cut`.
+- **Status:** Completed on 25 November 2026.
+- **Audience:** 3 listeners. Names are not recorded. They are listed as Listener 1, Listener 2, and Listener 3.
+- **Material:** `outputs/radio_cut.mp4`. Amharic narration over a black 9:16 frame. Spoken duration 86.58 seconds.
 - **Listen for:** Pronunciation of the proverb, whether the voice feels respectful, whether any line is hard to follow, and whether the total length feels like a short film rather than a lecture.
-- **Record:** Date, who was present (first names or roles only), what they understood the message to be, and any line they asked to hear again.
-- **Results:** Pending.
+
+Listener 1: The 86-second pace is just right. The story is easy to visualize without pictures and feels cozy, like a morning radio ትረካ. The proverb «ሳይቃጠል በቅጠል» landed strongly. They also heard slight voice and prosody shifts between clips, and a few mispronounced Amharic words.
+
+Listener 2: The pace is just right. The story is clear and the ending message is strong. They noticed occasional Amharic mispronunciation.
+
+Listener 3: Overall good, with just-right pacing and a strong ending message. A couple of words had minor Amharic pronunciation quirks.
+
+**Changes made after the test:**
+
+- `meta.tts_style_instruction` now asks for one consistent Addis Ababa radio voice, the same pitch and pace on every clip, and pauses at the commas and full stops already in the line. That value is part of every narration fingerprint, so the next narration run regenerates all 10 shots. That is the cache doing what it should.
+- Shot 10's spoken proverb is now `ሳይቃጠል በቅጠል።` The written proverb in `STORY.md` still has the guillemets. They were removed from the spoken text so the voice does not treat «» as something to pronounce. The ten `narration_am` lines are unchanged.
+- Extra commas were not inserted into those lines. The lines already contain Ethiopian commas and full stops, and the new style instruction tells the voice to pause there. Adding commas would rewrite the approved narration. If the next listen still shows mispronunciation, that is a separate approved edit.
+- The end card plan is 3 seconds. The spoken narration is 86.58 seconds, so a 3-second card keeps the finished film inside 90 seconds.
+
+The new voice has not been generated yet. These notes describe the change, not a second listening test.
 
 ### User Test #2 — Near-Final Cut
 

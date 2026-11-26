@@ -38,6 +38,8 @@ def settings(tmp_path: Path, root: Path) -> Settings:
         cloudflare_api_token=None,
         tts_provider="gemini",
         tts_model="gemini-3.8-flash-tts",
+        image_model="@cf/black-forest-labs/flux-1-schnell",
+        image_steps=4,
     )
 
 

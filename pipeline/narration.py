@@ -165,7 +165,14 @@ class GeminiTTSProvider:
             raise PermanentProviderError(
                 "google-genai is not installed. Run: python -m pip install -r requirements.txt"
             ) from exc
-        return genai.Client(api_key=self._api_key, http_options={"api_version": "v1beta"})
+        # attempts=1 turns off the SDK's own 429 sleep. The pipeline prints and retries instead.
+        return genai.Client(
+            api_key=self._api_key,
+            http_options={
+                "api_version": "v1beta",
+                "retry_options": {"attempts": 1},
+            },
+        )
 
 
 def create_tts_provider(provider_name: str, api_key: str | None) -> TTSProvider:
@@ -179,13 +186,12 @@ def create_tts_provider(provider_name: str, api_key: str | None) -> TTSProvider:
 
 
 def _raise_classified(exc: Exception) -> NoReturn:
-    code = getattr(exc, "status_code", None)
-    if code is None:
-        code = getattr(exc, "code", None)
+    code = _status_code(exc)
     name = type(exc).__name__.lower()
     message = str(exc) or type(exc).__name__
-    if isinstance(code, int) and code in TRANSIENT_STATUS_CODES:
-        raise TransientProviderError(message) from exc
+    if code in TRANSIENT_STATUS_CODES or _message_is_transient(message):
+        detail = f"Gemini HTTP {code}." if code in TRANSIENT_STATUS_CODES else message
+        raise TransientProviderError(detail, retry_after_sec=_retry_after_seconds(exc)) from exc
     if "timeout" in name or "unavailable" in name or "connection" in name:
         raise TransientProviderError(message) from exc
     if isinstance(exc, AttributeError):
@@ -196,6 +202,46 @@ def _raise_classified(exc: Exception) -> NoReturn:
             ) from exc
         raise PermanentProviderError("Gemini TTS response did not include audio.") from exc
     raise PermanentProviderError(message) from exc
+
+
+def _status_code(exc: Exception) -> int | None:
+    for owner in (exc, getattr(exc, "response", None)):
+        if owner is None:
+            continue
+        for attribute in ("status_code", "code"):
+            code = getattr(owner, attribute, None)
+            if isinstance(code, int):
+                return code
+    return None
+
+
+def _retry_after_seconds(exc: Exception) -> float | None:
+    headers = getattr(exc, "headers", None)
+    if headers is None:
+        response = getattr(exc, "response", None) or getattr(exc, "raw_response", None)
+        headers = getattr(response, "headers", None)
+    if headers is None:
+        return None
+    milliseconds = headers.get("retry-after-ms")
+    if milliseconds not in (None, ""):
+        try:
+            return max(0.0, float(milliseconds) / 1000.0)
+        except (TypeError, ValueError):
+            pass
+    seconds = headers.get("retry-after")
+    if seconds in (None, ""):
+        return None
+    try:
+        return max(0.0, float(seconds))
+    except (TypeError, ValueError):
+        return None
+
+
+def _message_is_transient(message: str) -> bool:
+    folded = message.lower()
+    if "too many requests" in folded or "rate limit" in folded:
+        return True
+    return any(f" {code}" in f" {folded}" or f"[{code}" in folded for code in TRANSIENT_STATUS_CODES)
 
 
 register_tts_provider("gemini", GeminiTTSProvider)

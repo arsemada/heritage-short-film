@@ -10,6 +10,10 @@ What is implemented today, and what is deliberately not pretended.
 | --- | --- | --- |
 | `validate` | Schema plus structural rules. Duration bounds come from the storyboard. | No |
 | `run --stage narration` | Speech for every shot, or one shot with `--scene` | Only when a WAV is missing or stale |
+| `run --stage keyframes` | One JPEG per shot. Klein 4B when the storyboard has `young_brother`, otherwise FLUX.1 schnell | Only on a cache miss |
+| `run` | Conform shots, then assemble both films. Does not call Gemini or Cloudflare | No |
+| `run --stage shots` | External clip if one is already on disk, otherwise FFmpeg Ken Burns | No |
+| `run --stage assemble` | Subtitles, ducked music when a score exists, -14 LUFS, 9:16 and 16:9 | No |
 | `radio-cut` | FFmpeg black-frame assembly of the narration WAVs | No |
 
 ## Modules
@@ -58,6 +62,20 @@ The request follows the Gemini speech-generation guide: verbatim text in `input`
 
 Each line of `logs/runs.jsonl` has `timestamp`, `run_id`, `stage`, `shot_id`, `model`, `params`, `seed`, `latency_sec`, `cached`, `status`, and `error`. `params` carries the voice, the fingerprint, and the retry count. It does not carry the API key. Fields named like secrets are dropped, and known secret values are replaced with `[REDACTED]`.
 
-## Not built yet
+## Picture, shots, and assembly
 
-Keyframe generation, Wan or FFmpeg shot animation, music, subtitles burned into the final films, and the two aspect-ratio exports. The storyboard already holds the prompts, seeds, Ken Burns fallback, and end card those stages will read.
+`pipeline/keyframes.py` prepends each `characters_present` description verbatim, then the shot `image_prompt`, `style_block.visual_style` (or `look`), framing, and safety. The avoid list is appended because FLUX.1 schnell has no separate negative-prompt field. The request URL is `https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{model}`. Schnell sends JSON `prompt` and `steps`. A storyboard that defines `young_brother` sends every keyframe to `@cf/black-forest-labs/flux-2-klein-4b` as multipart, and shots that include him also send `input_image_0` from `outputs/references/young_brother_ref.png`. The storyboard seed is not sent.
+
+`pipeline/shots.py` does not run Wan or MiniMax. It looks for a finished clip at `outputs/shots/wan/shot_XX.mp4`, then at `kaggle_outputs/shots/shot_XX.mp4`. A clip shorter than the narration WAV is looped. A clip up to 1.5 times the WAV is slowed to fit. A longer clip is trimmed. The whole frame is padded into a 1080×1080 master at `outputs/shots/shot_XX.mp4`. If neither clip exists, FFmpeg `zoompan` uses `fallback_ken_burns` (`in_slow` / `zoom_in`, `out_slow` / `zoom_out`, `left_slow` / `pan_left`, `right_slow` / `pan_right`). The SHA-256 fingerprint covers the shot id, the source file hash, the WAV duration, the motion fields, and the seed. An unchanged fingerprint leaves the existing MP4 in place. `--scene 04` rebuilds only that shot, and only when its fingerprint misses.
+
+`pipeline/music.py` loads `outputs/music/score.wav`, or `music.path` when that file exists. It does not replace that file. A missing score is a separate quiet drone at `outputs/music/underscore.wav`.
+
+`pipeline/assemble.py` concatenates the masters, adds the 3-second end card, burns English captions from `outputs/subtitles/film.srt`, and fits the square into `outputs/final_9x16.mp4` and `outputs/final_16x9.mp4` with black bars. The score is ducked with `sidechaincompress` inside the same filter graph as `loudnorm=I=-14:TP=-1.5:LRA=11`.
+
+## Cache
+
+Every provider stage hashes a canonical JSON payload with SHA-256 and stores the hit in `outputs/cache/manifest.json`. Narration hashes the Amharic line, the style instruction, the voice, the model, and the seed. Keyframes hash the composed prompt, the model, the step count, and, when the brother reference is attached, the PNG hash. Shots hash the picture source. Assembly hashes the shot files, the WAVs, the score file, the end card, and the subtitle text. Changing one shot's storyboard fields misses only that shot. The score file is not an input to narration or keyframes, so replacing `score.wav` rebuilds the mix and leaves the speech and stills alone.
+
+## What this repository does not run
+
+Wan 2.2 and ACE-Step have Kaggle scripts under `notebooks/`. This machine has no CUDA GPU, and the T4 session did not leave 480p clips in `outputs/shots/`. The films in `outputs/final_9x16.mp4` and `outputs/final_16x9.mp4` use the Ken Burns masters and the dropped score.
