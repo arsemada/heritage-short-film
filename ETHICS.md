@@ -22,7 +22,7 @@ Three disclosures travel with the finished film:
 2. **Visible end card.** The export ends on a card that says the film was made with AI, names the generation roles, and states that the characters are fictionalized. The card text lives in `storyboard.json` under `end_card`.
 3. **Intact metadata.** Assembly writes a comment into the media file stating that the narration is AI-generated, that the voice is the prebuilt voice Kore, and that the characters are fictionalized. That comment is not stripped in later exports.
 
-`logs/runs.jsonl` records models, seeds, and outcomes. It does not record API keys, account tokens, or private family details.
+`logs/runs.jsonl` records models, seeds, and outcomes. It does not record API keys, account tokens, or private family details. The moving shots in the delivered films are logged as MiniMax H3 Turbo (Raphael AI), with the resolution and duration ffprobe measured. The visible end card names the narration voice and Cloudflare Workers AI for the pictures, and states that the characters are fictionalized.
 
 ## Cultural care
 
@@ -39,8 +39,9 @@ Checked again on 25 November 2026. Gemini narration and one FLUX.1 [schnell] key
 | Gemini API, model `gemini-3.8-flash-tts` | Google Gemini API terms. This is a proprietary service, not an open-source licence. | [Speech generation guide](https://ai.google.dev/gemini-api/docs/speech-generation), which lists Amharic for this model and the prebuilt voice `Kore`. | Narration only. No voice cloning. |
 | Cloudflare Workers AI hosting FLUX.1 [schnell] (`@cf/black-forest-labs/flux-1-schnell`) | FLUX.1 [schnell] is published by Black Forest Labs under Apache-2.0. Calls also follow Cloudflare's service terms. | Cloudflare's model page for `flux-1-schnell`. | Keyframes that do not include the younger brother. One shot was generated before this redesign. |
 | Cloudflare Workers AI hosting FLUX.2 [klein] 4B (`@cf/black-forest-labs/flux-2-klein-4b`) | Apache-2.0 for the 4B model. Calls also follow Cloudflare's service terms. FLUX.2 [klein] 9B and FLUX.2 [dev] are different licences and are not approved. | Black Forest Labs' model card for `FLUX.2-klein-4B` states Apache-2.0. Cloudflare's 15 January 2026 changelog documents multipart input and `input_image_0` through `input_image_3`, each smaller than 512×512. | The generated brother reference, and every keyframe in a storyboard that defines `young_brother`. The reference is attached only on shots that include him. |
-| Wan 2.2 | Apache-2.0 | `LICENSE.txt` in `Wan-Video/Wan2.2`. | Optional image-to-video. Not run. The deadline path is FFmpeg animation of stills. |
-| ACE-Step 1.5 | MIT | `LICENSE` in `ace-step/ACE-Step-1.5` (copyright 2026 ACEStep). The older `ace-step/ACE-Step` repository is Apache-2.0 and is not the checkpoint this row approves. | Planned original instrumental. Not generated. |
+| Wan 2.2 | Apache-2.0 | `LICENSE.txt` in `Wan-Video/Wan2.2`. | Optional image-to-video script. Not run to a finished clip. |
+| MiniMax H3 Turbo via Raphael | The browser tool's own terms. This repository has no MiniMax key and no receipt. The MP4s contain no model tag. | The files at `outputs/shots/shot_01.mp4` through `shot_10.mp4`, probed 26 November 2026. | The moving shots in the delivered films. Stated source: Raphael. FFmpeg Ken Burns remains the offline fallback when those files are absent. |
+| ACE-Step 1.5 | MIT | `LICENSE` in `ace-step/ACE-Step-1.5` (copyright 2026 ACEStep). The older `ace-step/ACE-Step` repository is Apache-2.0 and is not the checkpoint this row approves. | Optional score script. The mixed file is `outputs/music/score.wav`, converted locally from `score.mp3`. The pipeline did not call ACE-Step. |
 | FFmpeg | LGPL 2.1 or later for the core. GPL 2 or later when the build includes GPL parts such as libx264. | FFmpeg's published licensing. The radio-cut command uses libx264, so the installed build should be a GPL build. | Assembly, subtitles, still-image motion, and the radio cut. |
 
 Generated media stays in `outputs/` and is gitignored. Secrets stay in `.env`, which is gitignored. `.env.example` has empty values only.
