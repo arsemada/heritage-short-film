@@ -1,0 +1,11 @@
+Hi, this is a technical walkthrough of the Heritage Short Film project, The Neighbour Who Protects.
+
+The system takes one structured storyboard file and runs a Python and FFmpeg pipeline in five steps: Amharic narration, keyframe generation, animated shots, a 90 BPM instrumental storytelling underscore, and final assembly. The same square picture is exported in 9 to 16 vertical and 16 to 9 horizontal, with burned-in English subtitles and a 3-second card that says the film was made with AI.
+
+A key decision came from cloud GPU limits. I first tried Wan 2.2, the 5 billion parameter image-to-video model, on a Kaggle Tesla T4. That session hit a 14.56 gigabyte CUDA out-of-memory error, then container timeouts of about 5 and a half minutes per shot. To keep the film reproducible offline, and at zero recorded cost, I pivoted. The delivered motion is 10 MiniMax H3 Turbo clips I generated on the free Raphael AI tier and placed in the shots folder. Their provenance is in the run log, with the resolution and duration that ffprobe actually measured: 720 by 720, and about 6 to 12 seconds each. Local FFmpeg Ken Burns motion remains the fallback when those clips are absent, so the pipeline can still build a picture on a machine with no GPU.
+
+In assembly, each clip is longer than its Amharic line. The pipeline plays it at normal speed and trims the extra tail, so the picture ends with the narration. It does not use setpts, and these are not 4-second clips. An earlier cut that looped short clips was rejected, because the motion repeated.
+
+Next, incremental SHA-256 caching. Every provider stage hashes its inputs. Unchanged assets are not regenerated. If I edit shot 1 and run the matching stage for scene 0 1, only that shot misses the cache. The other nine stay cached. Running the pipeline with no stage does not call Gemini or Cloudflare. It conforms the shots and assembles both films.
+
+Finally, the assembled 9 to 16 cut plays the ten moving shots with the Amharic narration, the background score, English subtitles, and the 3-second disclosure card. Experiment logs, failure notes, the three-listener radio test, and the PDF report are in the repository.
