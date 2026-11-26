@@ -54,7 +54,7 @@ Square masters were center-cropped into 9:16 and 16:9, which cut people off. Cap
 
 ## 10. Wan on this PC, then on a T4
 
-`notebooks/kaggle_wan2_batch.py` on this machine stopped with `This script needs a CUDA GPU.` On a Kaggle Tesla T4 the install hit an `ftfy` import error, then a CUDA out-of-memory error at 14.56 GiB while loading `Wan-AI/Wan2.2-TI2V-5B-Diffusers` with UMT5. Sequential CPU offload and VAE tiling are in the script. The container still ran about 5.5 minutes per shot and hit draft-session memory and disk pressure. No Wan MP4 is in `outputs/shots/`.
+`notebooks/kaggle_wan2_batch.py` on this machine stopped with `This script needs a CUDA GPU.` On a Kaggle Tesla T4 the install hit an `ftfy` import error, then a CUDA out-of-memory error with 14.56 GiB allocated on a 14.56 GiB card while loading `Wan-AI/Wan2.2-TI2V-5B-Diffusers` with UMT5. The script now calls `enable_sequential_cpu_offload()` and `vae.enable_tiling()`. The session record after that is a checkpoint download and reconstruction of about 31.4 GB, about 5.5 minutes per shot (about 55 minutes for ten), and a Kaggle `Draft Session Error`. No Wan MP4 is in `outputs/shots/`. The repository does not contain that checkpoint or the Kaggle traceback.
 
 ## 11. Score tempo: 72 BPM brief, then the 90 BPM file
 

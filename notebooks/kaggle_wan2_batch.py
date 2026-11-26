@@ -7,8 +7,8 @@ Run from the project root, with a GPU notebook and internet enabled:
 Keyframes are read from ./keyframes/shot_XX.jpg (or .png), then from
 outputs/keyframes/. Each shot uses only that shot's motion_prompt and seed.
 One failed shot is logged and skipped. Clips land in
-./kaggle_outputs/shots/shot_XX.mp4. The local shots stage loops or
-slow-trims those files to the narration.
+./kaggle_outputs/shots/shot_XX.mp4. The local shots stage loops a shorter
+clip, or trims a longer clip at normal speed, to the narration.
 """
 
 from __future__ import annotations
