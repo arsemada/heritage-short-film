@@ -1,81 +1,69 @@
 # Experiments
 
-Rows are added after a real run or a real listening session. A planned change is labeled as a hypothesis until the new audio exists.
+Each row is a run or a listen that produced a file or a rejected file. A change that only exists in the storyboard is labeled as such.
 
-## Narration, 25 November 2026
+## 1. First Amharic narration
 
 | Item | Record |
 | --- | --- |
-| Model | `gemini-3.8-flash-tts` |
-| Voice | Prebuilt `Kore` |
-| Input | Each shot's approved `narration_am`. Shot 10 also spoke `«ሳይቃጠል በቅጠል።»`. Style was a separate field: warm, unhurried Ethiopian storytelling. |
+| When | 25 November 2026 |
+| Model | `gemini-3.8-flash-tts`, prebuilt voice Kore |
+| Input | Each shot's approved `narration_am`. Shot 10 also spoke `«ሳይቃጠል በቅጠል።»`. Style was a separate field. |
 | Output | `outputs/narration/shot_01.wav` through `shot_10.wav` |
-| Measured speech | 86.58 seconds. Inside the 60–90 second target. |
+| Measured speech | 86.58 seconds. Inside the 60–90 second target. Per shot: 6.90, 13.26, 6.18, 8.62, 8.18, 7.10, 6.24, 9.90, 10.11, 10.09. |
 | Cache | A later run reused shots 01–09 and generated only shot 10, which had been missing. |
-| Listeners | User Test #1, three people, black-screen radio cut. Pace and ending landed. Pronunciation and consistency did not. |
+| Listen | User Test #1, three people, black-screen radio cut. Pace and ending landed. Pronunciation and consistency did not. |
 
-Per-shot durations from `logs/runs.jsonl`: 6.90, 13.26, 6.18, 8.62, 8.18, 7.10, 6.24, 9.90, 10.11, 10.09 seconds.
+The API response did not include a token count or a price.
 
-The API response did not include a token count or a price. No cost is invented here.
+## 2. Prosody restyle
 
-## Hypothesis, not yet regenerated
+`tts_style_instruction` was rewritten for one consistent Addis Ababa radio voice, and the spoken proverb lost its guillemets. The style field is hashed, so the cache missed for all 10 shots. The second set measures 78.50 seconds: 5.92, 10.37, 5.19, 7.74, 7.00, 5.91, 6.20, 9.06, 9.86, 11.25. The approved Amharic sentences were not edited, and no commas were inserted. These WAVs are the ones in the finals. A second three-person listen is not recorded.
 
-Tightening `tts_style_instruction` for one consistent Addis Ababa Amharic radio prosody, removing the «» guillemets around ሳይቃጠል በቅጠል።, and pausing at the punctuation already in the dense clauses will reduce voice drift and mispronunciation.
+## 3. Visible 429 retries
 
-What changed in `storyboard.json` on 25 November 2026:
+Gemini HTTP 429 made the SDK sleep with no pipeline log. The client retry count is now 1. Pipeline waits are 15, 20, 30, 45, and 60 seconds, six attempts, 12 seconds between live requests. Finished WAVs stay cached, so a failed shot does not redo the shots that already wrote a file.
 
-- The style instruction was rewritten. Because it is hashed into every shot, the next `python -m pipeline run --stage narration` will call Gemini for all 10 shots.
-- The spoken proverb no longer includes «». The approved narration lines were not rewritten, and no new commas were inserted into them.
+## 4. FLUX.1 [schnell] rejects `seed`
 
-The restyle was generated after this note. Measured speech for that set is 78.50 seconds: 5.92, 10.37, 5.19, 7.74, 7.00, 5.91, 6.20, 9.06, 9.86, 11.25. The approved Amharic lines were still not rewritten.
+`python -m pipeline run --stage keyframes` returned HTTP 400 for shot 01 before any JPEG was saved. The same short prompt with `steps` and `seed` was rejected: `Additional or unevaluated properties '/seed'`. The same prompt and `steps` without `seed` returned HTTP 200 and a JPEG. The provider now sends `prompt` and `steps` only. The storyboard seed stays in the fingerprint. The avoid list is appended as `Avoid: ...` because that model has no negative field.
 
-## Images
+## 5. Drink house, locked characters, Klein 4B
 
-On 25 November 2026, `python -m pipeline run --stage keyframes` returned HTTP 400 for shot 01 before any JPEG was saved. A direct comparison found the cause. The same short prompt with `steps` and `seed` was rejected: `Additional or unevaluated properties '/seed'`. The same prompt and `steps` without `seed` returned HTTP 200 and a JPEG. The model page curl example still shows `seed`, but the live REST schema for `@cf/black-forest-labs/flux-1-schnell` accepts only `prompt` and `steps`.
+On 25 November 2026 the look, the character descriptions, and all ten `image_prompt` values were rewritten toward an urban tella bet. The approved Amharic lines were not changed.
 
-The provider now sends those two fields for FLUX.1 [schnell]. The storyboard seed stays in the cache fingerprint, so changing it still misses the cache, but Cloudflare chooses the image seed. The successful check used the prompt `a painted plaster wall` and was not written to `outputs/`. A later keyframe run did save `outputs/keyframes/shot_01.jpg` from the previous urban prompt. That JPEG does not match the drink-house redesign below.
+`@cf/black-forest-labs/flux-2-klein-4b` takes multipart input. Reference images are `input_image_0` through `input_image_3`, each under 512×512. `steps` is fixed at 4. Because this storyboard defines `young_brother`, every keyframe uses Klein. Shots that include him also attach `outputs/references/young_brother_ref.png` as image 0. That PNG is a generated 480×480 portrait, not a family photograph. The ten film keyframes after this pass are 1024×1024 JPEGs.
 
-That model page does not list a negative-prompt field, so the storyboard avoid-list is appended to the prompt as `Avoid: ...`. FLUX.2 [dev] is still refused. FLUX.2 [klein] 4B is the exception in the next section.
+## 6. Second keyframe pass
 
-## Drink house and locked characters
+After looking at those ten JPEGs, shots 04, 05, 06, 07, 09, and 10 changed. Shots 01, 02, 03, and 08 kept the same `image_prompt` and `seed`, so their fingerprints stayed and the cache kept those JPEGs.
 
-On 25 November 2026 the storyboard look, character descriptions, and all ten `image_prompt` values were rewritten from a visual-reference review. The approved Amharic lines were not changed.
+Shot 04 became a close-up of the brother, and `smoker_customer` was removed from that shot so his description is not pasted into the portrait. Shot 05 was a dusk insert of the cigarette stub, with cups forbidden, so the shared tumbler sentence is left off that prompt. Shot 06 asks for a mid-stride glance. Shot 07's seed moved from 1007 to 1008. Shot 09 states that both pairs of hands are empty. Shot 10's seed moved from 1010 to 1020. Klein still does not receive `seed`. The new numbers only miss the cache. The same seed is in the narration fingerprint, so a later narration run would call Gemini again for shots 07 and 10. Those WAVs were left in place.
 
-`@cf/black-forest-labs/flux-2-klein-4b` is listed on Cloudflare Workers AI. Its REST input is multipart, and it accepts reference images as `input_image_0` through `input_image_3`. There is no field named `image` or `reference_images`. Each reference must be smaller than 512×512. `steps` is fixed at 4.
+## 7. Third keyframe pass
 
-The pipeline now prepends each `characters_present` description verbatim. Because this storyboard defines `young_brother`, every keyframe uses Klein so the drink house stays one photographic style. Shots that include him also attach `outputs/references/young_brother_ref.png` as `input_image_0`. That PNG was generated on 25 November 2026 at 480×480. It is a fictional portrait, not a family photograph. The ten film keyframes were generated after this change.
+Only shots 05 and 07 were rewritten. Shot 05 is a medium close-up: the brother crouches and reaches toward the stub. Shot 07 returns to the wall pose, one foot back, coughing. Both prompts changed and those two JPEGs were regenerated. The other eight stayed cached.
 
-## Second keyframe pass
+## 8. Ken Burns matched to the WAVs
 
-On 25 November 2026, after looking at those ten JPEGs, only shots 04, 05, 06, 07, 09, and 10 changed. Shots 01, 02, 03, and 08 kept the same `image_prompt` and `seed`. Their keyframe fingerprints stay the same, so the SHA-256 cache still points at the JPEGs already saved.
+With no Wan file on disk, `run --stage shots` wrote ten 1080×1080 H.264 masters whose durations match the 78.50-second narration. A later run with the same fingerprint printed `cached` and did not rewrite the MP4s. Those lines are still in `logs/runs.jsonl` as `ffmpeg-ken-burns`. They describe that run. They do not describe the files in the folder now.
 
-What the six edits are for:
+## 9. Captions and crops
 
-- Shot 04 is a tight close-up of the brother's face, watching someone off-camera. `smoker_customer` was removed from that shot's `characters_present` so his description is not pasted into the portrait.
-- Shot 05 is a dusk insert of the cigarette stub beside the sneakers. Its prompt forbids cups, glasses, drinks, and beverages. The shared style line about tall glass tumblers is left off that shot's composed prompt, and off shot 09, which also forbids cups. Shots 01, 02, 03, and 08 still receive the full style line.
-- Shot 06 asks for a mid-stride glance over the shoulder.
-- Shot 07 keeps the wall pose and asks for one foot on the ground and one sole on the wall. Its seed moved from 1007 to 1008 so the cache misses and the leg can be drawn again.
-- Shot 09 keeps the indoor correction and states that both pairs of hands are empty.
-- Shot 10 is a new neighborhood twilight wide shot. Its seed moved from 1010 to 1020.
+Square masters were center-cropped into 9:16 and 16:9, which cut people off. Captions rendered huge because libass scaled a font written for a 288-line play resolution. Assembly now pads the square into each aspect and writes an ASS file whose PlayRes equals the export. Vertical type sits in the lower bar. Horizontal margins are 280 so a long English line wraps inside the center square.
 
-Klein still does not receive `seed` in the request. The new numbers only change the cache key, so the next keyframe run asks for a new picture. The same seed field is also in the narration fingerprint, so a later `run --stage narration` would call Gemini again for shots 07 and 10. The WAVs already on disk are left in place until that command is run.
+## 10. Wan on this PC, then on a T4
 
-## Shot 05 and shot 07 again
+`notebooks/kaggle_wan2_batch.py` on this machine stopped with `This script needs a CUDA GPU.` On a Kaggle Tesla T4 the install hit an `ftfy` import error, then a CUDA out-of-memory error at 14.56 GiB while loading `Wan-AI/Wan2.2-TI2V-5B-Diffusers` with UMT5. Sequential CPU offload and VAE tiling are in the script. The container still ran about 5.5 minutes per shot and hit draft-session memory and disk pressure. No Wan MP4 is in `outputs/shots/`.
 
-After the second keyframe set, only shots 05 and 07 were rewritten. Every other shot kept its `image_prompt` and `seed`, so those keyframe fingerprints did not move.
+## 11. Score tempo: 72 BPM brief, then the 90 BPM file
 
-Shot 05 is now a medium close-up at dusk: the brother crouches and reaches toward the cigarette stub beside his sneakers. The prompt still forbids cups, glasses, and drinks, so the shared tumbler line stays off that composed prompt. Its seed is still 1005. Shot 07 returns to the earlier wall pose, one foot back against the wall, coughing, and its seed stays 1008. Both prompts changed. Those two keyframes were regenerated. The other eight JPEGs stayed cached.
+The storyboard first named a 72 BPM score. The file that was dropped is `outputs/music/score.mp3`, converted with local FFmpeg to `outputs/music/score.wav` (148.77 seconds, 48 kHz stereo, PCM). `music.tempo_bpm` is now 90 for that chosen underscore. The 90 is the storyboard field, not a BPM detector reading of the WAV. The storyboard does not name instruments. `music.status` remains `not_generated` and `music.path` remains null. Assembly still finds the default `score.wav`, sets it to volume 0.35, and ducks it under the voice.
 
-## Iterations that reached a file
+The first mix failed because `loudnorm` was `-af` on a complex graph. The successful mix puts `loudnorm` inside the same graph. That mix is in the final MP4s.
 
-1. First Gemini narration, voice Kore. Ten WAVs. Measured speech 86.58 seconds. Three listeners heard the radio cut. Pace worked. Pronunciation drifted.
-2. Style instruction rewritten and the proverb guillemets removed. Cache missed. Second narration measured 78.50 seconds. The Amharic sentences were not edited.
-3. Gemini HTTP 429. The SDK slept silently. Pipeline retries now wait on 429 and leave finished shots cached.
-4. Cloudflare FLUX.1 [schnell] rejected `seed` with HTTP 400. The same prompt with `steps` only returned a JPEG. The provider stopped sending `seed`.
-5. Drink-house prompts and locked character descriptions. Klein 4B for every keyframe in this storyboard, with `young_brother_ref.png` on the brother shots.
-6. Second keyframe pass. Shots 04, 05, 06, 07, 09, and 10 changed. Shots 01, 02, 03, and 08 kept their hashes.
-7. Third keyframe pass. Only shots 05 and 07 changed. The other fingerprints stayed put, and those two JPEGs were regenerated.
-8. Ken Burns shots matched each WAV. A later run with the same fingerprint printed `cached` and did not rewrite the MP4s.
-9. Square masters center-cropped into 9:16 and 16:9 cut people off, and captions rendered huge because libass scaled a 288-line font. Assembly now pads the square and sizes captions in the real frame.
-10. Motion. Wan 2.2 was not run on this PC (no CUDA). The Kaggle T4 session ran out of memory and time. The film's motion remains Ken Burns. An external clip dropped at `outputs/shots/wan/shot_XX.mp4` is conformed instead, and that source file is not replaced.
-11. Music. The storyboard first named a 72 BPM score. The file actually dropped is `outputs/music/score.mp3`, converted to `outputs/music/score.wav` (2 minutes 28.77 seconds, 48 kHz stereo). The storyboard tempo is now 90 BPM for that chosen underscore. Assembly ducks it under the voice. A first mix failed because `loudnorm` was a second filter on a complex graph. The successful mix is the one in the final MP4s.
+## 12. Duration sync: loop, then trim
+
+Nine Raphael clips of about 3.75 seconds at 640×640 were concatenated against lines of 5–11 seconds, so the picture moved on early. Looping them to the WAV made the lengths match and made the motion repeat. That cut was rejected.
+
+The replacement files, copied to `outputs/shots/shot_01.mp4` through `shot_10.mp4`, measure 720×720 and 5.97, 11.01, 6.01, 8.01, 7.01, 6.01, 7.01, 10.01, 10.01, and 12.00 seconds. Each is longer than its WAV. `setpts` slowing was removed so a slightly longer clip is not slowed and then cut. `-t` trims the tail at normal speed. The rebuild on 26 November 2026 wrote both finals at 81.50 seconds, and each timed clip matches its WAV within a frame.

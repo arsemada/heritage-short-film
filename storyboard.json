@@ -48,7 +48,7 @@
     "tempo_bpm": 90,
     "key": "D major",
     "seed": 7200,
-    "status": "ready",
+    "status": "not_generated",
     "path": null
   },
   "shots": [
